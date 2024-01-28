@@ -31,8 +31,10 @@ class MyApp:
         self.group_by_option.set("item")
         self.my_function()
         selections = ["ingredient", "item", "day", "week", "month", "year", "decade", "century", "eon"]
+        label = tk.Label(self.frm, text="aggregation: ")
+        label.grid(column=0, row=0, pady=2, padx=2)
         lb = tk.OptionMenu(self.frm, self.group_by_option, *selections, command=self.my_function)
-        lb.grid(column=0, row=0, pady=2, padx=2)
+        lb.grid(column=1, row=0, pady=2, padx=2, sticky="W")
         self.root.mainloop()
         self.mtable = None
 
