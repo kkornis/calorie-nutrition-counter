@@ -7,16 +7,56 @@ import warnings
 import configparser
 
 
-class MyApp:
-    def __init__(self, calorie_changes_path, food_nutrition_file_path):
+class Settings:
+    def __init__(self, root, calorie_changes_path, food_nutrition_file_path):
         self.intermediate_food_nutrition_file_name = None
         self.intermediate_calorie_changes_file_name = None
-        self.settings_popup = None
         self.calorie_changes_file_name = calorie_changes_path
         self.food_nutrition_file_name = food_nutrition_file_path
+        self.settings_popup = None
+        self.root = root
+
+    def show_settings(self):
+        self.settings_popup = tk.Toplevel(self.root)
+        self.settings_popup.grid()
+        self.settings_popup.title("Settings")
+        self.intermediate_food_nutrition_file_name = self.food_nutrition_file_name
+        self.intermediate_calorie_changes_file_name = self.calorie_changes_file_name
+        tk.Button(self.settings_popup, text="set food nutrition file", command=self.set_food_nutrition_file_name)\
+            .grid(row=0, column=0)
+        tk.Label(self.settings_popup, text=self.intermediate_food_nutrition_file_name).grid(row=0, column=1)
+        tk.Button(self.settings_popup, text="set calorie changes file", command=self.set_calorie_changes_file_name)\
+            .grid(row=1, column=0)
+        tk.Label(self.settings_popup, text=self.intermediate_calorie_changes_file_name).grid(row=1, column=1)
+        tk.Button(self.settings_popup, text="Ok", command=self.settings_ok).grid(row=2, column=1)
+        tk.Button(self.settings_popup, text="Cancel", command=self.settings_cancel).grid(row=2, column=2)
+        tk.Button(self.settings_popup, text="Apply", command=self.settings_apply).grid(row=2, column=3)
+
+    def set_food_nutrition_file_name(self):
+        self.intermediate_food_nutrition_file_name = askopenfilename()
+
+    def set_calorie_changes_file_name(self):
+        self.intermediate_calorie_changes_file_name = askopenfilename()
+
+    def settings_ok(self):
+        self.food_nutrition_file_name = self.intermediate_food_nutrition_file_name
+        self.calorie_changes_file_name = self.intermediate_calorie_changes_file_name
+        self.settings_popup.destroy()
+
+    def settings_cancel(self):
+        self.settings_popup.destroy()
+
+    def settings_apply(self):
+        self.food_nutrition_file_name = self.intermediate_food_nutrition_file_name
+        self.calorie_changes_file_name = self.intermediate_calorie_changes_file_name
+
+
+class MyApp:
+    def __init__(self, calorie_changes_path, food_nutrition_file_path):
         self.root = tk.Tk()
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
+        self.settings = Settings(self.root, calorie_changes_path, food_nutrition_file_path)
 
         self.frm = tk.Frame(self.root)
         self.frm.columnconfigure(0, weight=0)
@@ -48,8 +88,8 @@ class MyApp:
         self.mtable.show()
 
     def get_table(self):
-        calorie_changes = pd.read_csv(self.calorie_changes_file_name)
-        food_nutrition = pd.read_csv(self.food_nutrition_file_name)
+        calorie_changes = pd.read_csv(self.settings.calorie_changes_file_name)
+        food_nutrition = pd.read_csv(self.settings.food_nutrition_file_name)
 
         merged = calorie_changes.merge(food_nutrition, how="left", on='name')
         merged.fillna(0, inplace=True)
@@ -97,7 +137,7 @@ class MyApp:
     def add_menu(self):
         menubar = tk.Menu(self.root)
         file_menu = tk.Menu(menubar, tearoff=0)
-        file_menu.add_command(label="Settings", command=self.show_settings)
+        file_menu.add_command(label="Settings", command=self.settings.show_settings)
 
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=self.root.quit)
@@ -122,40 +162,6 @@ class MyApp:
         tk.Label(popup, text="Kristof Kornis, 2024").pack(padx=50, pady=5)
         popup.title("About")
         tk.Button(popup, text="Ok", command=popup.destroy).pack()
-
-    def show_settings(self):
-        self.settings_popup = tk.Toplevel(self.root)
-        self.settings_popup.grid()
-        self.settings_popup.title("Settings")
-        self.intermediate_food_nutrition_file_name = self.food_nutrition_file_name
-        self.intermediate_calorie_changes_file_name = self.calorie_changes_file_name
-        tk.Button(self.settings_popup, text="set food nutrition file", command=self.set_food_nutrition_file_name)\
-            .grid(row=0, column=0)
-        tk.Label(self.settings_popup, text=self.intermediate_food_nutrition_file_name).grid(row=0, column=1)
-        tk.Button(self.settings_popup, text="set calorie changes file", command=self.set_calorie_changes_file_name)\
-            .grid(row=1, column=0)
-        tk.Label(self.settings_popup, text=self.intermediate_calorie_changes_file_name).grid(row=1, column=1)
-        tk.Button(self.settings_popup, text="Ok", command=self.settings_ok).grid(row=2, column=1)
-        tk.Button(self.settings_popup, text="Cancel", command=self.settings_cancel).grid(row=2, column=2)
-        tk.Button(self.settings_popup, text="Apply", command=self.settings_apply).grid(row=2, column=3)
-
-    def set_food_nutrition_file_name(self):
-        self.intermediate_food_nutrition_file_name = askopenfilename()
-
-    def set_calorie_changes_file_name(self):
-        self.intermediate_calorie_changes_file_name = askopenfilename()
-
-    def settings_ok(self):
-        self.food_nutrition_file_name = self.intermediate_food_nutrition_file_name
-        self.calorie_changes_file_name = self.intermediate_calorie_changes_file_name
-        self.settings_popup.destroy()
-
-    def settings_cancel(self):
-        self.settings_popup.destroy()
-
-    def settings_apply(self):
-        self.food_nutrition_file_name = self.intermediate_food_nutrition_file_name
-        self.calorie_changes_file_name = self.intermediate_calorie_changes_file_name
 
 
 def main():
