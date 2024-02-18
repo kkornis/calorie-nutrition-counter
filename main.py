@@ -87,19 +87,63 @@ class MyApp:
         self.mtable.grid(column=0, row=0, sticky="NSEW", padx=2, pady=2)
         self.mtable.show()
 
-    def get_table(self):
-        calorie_changes = pd.read_csv(self.settings.calorie_changes_file_name)
-        food_nutrition = pd.read_csv(self.settings.food_nutrition_file_name)
-
+    @staticmethod
+    def calculate_detailed_nutrition(calorie_changes: pd.DataFrame, food_nutrition: pd.DataFrame) -> pd.DataFrame:
         merged = calorie_changes.merge(food_nutrition, how="left", on='name')
         merged.fillna(0, inplace=True)
+
         amounts = pd.to_numeric(merged["amount"].str[:-1])
-        multiplier = np.where(merged["amount"].str[-1] == 'g', 100, 1)
+        multiplier = np.where(merged["amount"].str[-1] == 'g', 100, np.nan)
         multiplier = np.where(merged["amount"].str[-1] == 'm', 60, multiplier)
         cols = list(food_nutrition.columns)
         cols.remove("name")
         for col in cols:
             merged[col] = merged[col] * amounts / multiplier
+        return merged
+
+    @staticmethod
+    def get_table_by_ingredient(calorie_changes: pd.DataFrame, meal_details: pd.DataFrame) -> pd.DataFrame:
+        raise NotImplementedError
+
+    def get_table(self):
+        calorie_changes_or_meals = pd.read_csv(self.settings.calorie_changes_file_name)
+        food_nutrition = pd.read_csv(self.settings.food_nutrition_file_name)
+
+        is_total = (calorie_changes_or_meals["name"] == "total")
+        totals = calorie_changes_or_meals[is_total].copy()
+        calorie_changes_or_meals = calorie_changes_or_meals[~is_total].copy()
+
+        is_date = calorie_changes_or_meals["date_or_id"].str.match("\\d{4}-\\d{2}-\\d{2}")
+        calorie_changes = calorie_changes_or_meals[is_date].copy()
+        calorie_changes.rename(columns={"date_or_id": "date"}, inplace=True)
+        meals = calorie_changes_or_meals[~is_date].copy()
+
+        meal_details = self.calculate_detailed_nutrition(meals, food_nutrition)
+
+        if self.group_by_option.get() == "ingredient":
+            return self.get_table_by_ingredient(calorie_changes, meal_details)
+
+        meal_details.drop(["name", "amount"], axis=1, inplace=True)
+        meal_sums = meal_details.groupby("date_or_id").sum()
+        meal_sums.reset_index(inplace=True, names=["name"])
+        totals.drop(columns=["name"], inplace=True)
+        totals.rename(columns={"date_or_id": "name", "amount": "total"}, inplace=True)
+        meal_sums_merged = meal_sums.merge(totals, how="left", on='name')
+        meal_sums_merged = meal_sums_merged[~meal_sums_merged["total"].isna()]
+
+        cols = list(food_nutrition.columns)
+        cols.remove("name")
+
+        amounts = pd.to_numeric(meal_sums_merged["total"].str[:-1])
+        multiplier = np.where(meal_sums_merged["total"].str[-1] == 'g', 100, np.nan)
+
+        for col in cols:
+            meal_sums_merged[col] = meal_sums_merged[col] / amounts * multiplier
+        meal_sums_merged.drop(columns=["total"], inplace=True)
+        food_nutrition = pd.concat([food_nutrition, meal_sums_merged])
+
+        merged = self.calculate_detailed_nutrition(calorie_changes, food_nutrition)
+
         if self.group_by_option.get() == "item":
             pass
         elif self.group_by_option.get() == "day":

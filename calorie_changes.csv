@@ -1,4 +1,4 @@
-date,name,amount
+date_or_id,name,amount
 2024-01-11,whey_protein,20g
 2024-01-11,salmon,120g
 2024-01-11,cheese_aldi_base,45g

@@ -1,11 +1,11 @@
 name,calorie(k),protein(g),fat(g),saturated fat(g),carbohydrate(g),sugar(g),fiber(g),salt(g),magnesium(mg),zinc(mg)
-whey_protein,383,77,5.5,3.7,5.8,5.8,,0.49,,
-salmon,208,20,13,3.1,,,,,,
-cheese_aldi_base,,349,17,31,20,,,,1.4,24,2.6
-flour,455,12.9,1.2,,95.4,0.3,3.4,,,
+whey_protein,383,77,5.5,3.7,5.8,5.8,,0.49
+salmon,208,20,13,3.1
+cheese_aldi_base,349,17,31,20,,,,1.4,24,2.6
+flour,455,12.9,1.2,,95.4,0.3,3.4
 onion,40,1.1,0.1,,9,,1.7,,10,0.17
-saltsalt,,,,,,,,100,,
-oil,886,,100,,,,,,,
-sour_cream,134,3,12,8,3.4,3.4,,0.1,,
+salt,,,,,,,,100
+oil,886,,100
+sour_cream,134,3,12,8,3.4,3.4,,0.1
 chicken_breast,142,26.75,3.1,0.8,,,,,28,0.68
-mustard,419,4.1,4.7,0.2,8.8,4.1,,2,,
+mustard,419,4.1,4.7,0.2,8.8,4.1,,2
