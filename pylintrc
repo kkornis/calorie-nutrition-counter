@@ -1,0 +1,6 @@
+[SETTINGS]
+
+max-line-length=120
+
+disable =
+    missing-docstring,
