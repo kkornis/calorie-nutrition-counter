@@ -1,10 +1,10 @@
-import numpy as np
-import pandas as pd
 import tkinter as tk
 from tkinter.filedialog import askopenfilename
-from pandastable import Table
 import warnings
 import configparser
+import numpy as np
+import pandas as pd
+from pandastable import Table
 
 
 class Settings:
@@ -73,8 +73,8 @@ class MyApp:
         selections = ["ingredient", "item", "day", "week", "month", "year", "decade", "century", "eon"]
         label = tk.Label(self.frm, text="aggregation: ")
         label.grid(column=0, row=0, pady=2, padx=2)
-        lb = tk.OptionMenu(self.frm, self.group_by_option, *selections, command=self.my_function)
-        lb.grid(column=1, row=0, pady=2, padx=2, sticky="W")
+        aggregation_menu = tk.OptionMenu(self.frm, self.group_by_option, *selections, command=self.my_function)
+        aggregation_menu.grid(column=1, row=0, pady=2, padx=2, sticky="W")
         self.root.mainloop()
         self.mtable = None
 
